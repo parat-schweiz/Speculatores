@@ -14,14 +14,15 @@ namespace Speculatores
     {
         private readonly ILogger _logger;
         private readonly IBackoffConfig _config;
-        private int _failureCount;
         private DateTime _until;
+
+        public int FailureCount { get; private set; }
 
         public Backoff(ILogger logger, IBackoffConfig config)
         {
             _logger = logger;
             _config = config;
-            _failureCount = 0;
+            FailureCount = 0;
             _until = DateTime.MinValue;
         }
 
@@ -40,20 +41,20 @@ namespace Speculatores
 
         public void Success()
         {
-            if (_failureCount > 0)
+            if (FailureCount > 0)
             {
                 _logger.Debug("{0} succeded and reset failure count", _config.Name);
             }
-            _failureCount = 0;
+            FailureCount = 0;
             _until = DateTime.MinValue;
         }
 
         public void Failure()
         {
-            var totalBackoff = new TimeSpan(_config.BackoffTime.Ticks * Math.Max(_config.BackoffMaxFactor, _failureCount));
+            var totalBackoff = new TimeSpan(_config.BackoffTime.Ticks * Math.Min(_config.BackoffMaxFactor, FailureCount));
             _until = DateTime.Now.Add(totalBackoff);
-            _failureCount++;
-            _logger.Debug("{0} failure set backoff of {1} until {2} failure count {3}", _config.Name, totalBackoff, _until, _failureCount);
+            FailureCount++;
+            _logger.Debug("{0} failure set backoff of {1} until {2} failure count {3}", _config.Name, totalBackoff, _until, FailureCount);
         }
     }
 }

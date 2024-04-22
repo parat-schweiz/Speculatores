@@ -120,9 +120,17 @@ namespace Speculatores
                 }
                 catch (Exception exception)
                 {
-                    _logger.Error("Mastodon error: " + exception.Message);
-                    _logger.Debug(exception.ToString());
-                    _admin.Send(string.Format("Mastodon {0} failed", Name), exception);
+                    if (_backoff.FailureCount < 2)
+                    {
+                        _logger.Warning("Mastodon error: " + exception.Message);
+                        _logger.Debug(exception.ToString());
+                    }
+                    else
+                    {
+                        _logger.Error("Mastodon error: " + exception.Message);
+                        _logger.Debug(exception.ToString());
+                        _admin.Send(string.Format("Mastodon {0} failed", Name), exception);
+                    }
                     _queue.Insert(message);
                     _backoff.Failure();
                 }

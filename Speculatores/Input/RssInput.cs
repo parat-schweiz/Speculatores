@@ -127,9 +127,17 @@ namespace Speculatores
                 }
                 catch (Exception exception)
                 {
-                    _logger.Error("RSS input error: " + exception.Message);
-                    _logger.Debug(exception.ToString());
-                    _admin.Send(string.Format("RSS input {0} failed", Name), exception);
+                    if (_backoff.FailureCount < 2)
+                    {
+                        _logger.Warning("RSS input error: " + exception.Message);
+                        _logger.Debug(exception.ToString());
+                    }
+                    else
+                    {
+                        _logger.Error("RSS input error: " + exception.Message);
+                        _logger.Debug(exception.ToString());
+                        _admin.Send(string.Format("RSS input {0} failed", Name), exception);
+                    }
                     _backoff.Failure();
                 }
             }

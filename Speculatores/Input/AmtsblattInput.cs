@@ -111,9 +111,17 @@ namespace Speculatores
                 }
                 catch (Exception exception)
                 {
-                    _logger.Error("Amtsblatt input error: " + exception.Message);
-                    _logger.Debug(exception.ToString());
-                    _admin.Send("Amtsblatt input error", exception);
+                    if (_backoff.FailureCount < 2)
+                    {
+                        _logger.Warning("Amtsblatt input error: " + exception.Message);
+                        _logger.Debug(exception.ToString());
+                    }
+                    else
+                    {
+                        _logger.Error("Amtsblatt input error: " + exception.Message);
+                        _logger.Debug(exception.ToString());
+                        _admin.Send("Amtsblatt input error", exception);
+                    }
                     _backoff.Failure();
                 }
             }

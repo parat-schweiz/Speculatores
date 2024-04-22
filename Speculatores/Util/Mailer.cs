@@ -94,8 +94,16 @@ namespace Speculatores
                 }
                 catch (Exception exception)
                 {
-                    _logger.Error("Mailer eror: " + exception.Message);
-                    _logger.Verbose(exception.ToString());
+                    if (_backoff.FailureCount < 2)
+                    {
+                        _logger.Warning("Mailer eror: " + exception.Message);
+                        _logger.Verbose(exception.ToString());
+                    }
+                    else
+                    {
+                        _logger.Error("Mailer eror: " + exception.Message);
+                        _logger.Verbose(exception.ToString());
+                    }
                     _queue.Enqueue(message);
                     _backoff.Failure();
                 }

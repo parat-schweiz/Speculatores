@@ -87,9 +87,17 @@ namespace Speculatores
                 }
                 catch (Exception exception)
                 {
-                    _logger.Error("Matrix output {0} error: {1}", Name, exception.Message);
-                    _logger.Verbose("Matrix output error: {1}", exception.ToString());
-                    _admin.Send("Matrix output {0} error", exception);
+                    if (_backoff.FailureCount < 2)
+                    {
+                        _logger.Warning("Matrix output {0} error: {1}", Name, exception.Message);
+                        _logger.Verbose("Matrix output error: {1}", exception.ToString());
+                    }
+                    else
+                    {
+                        _logger.Error("Matrix output {0} error: {1}", Name, exception.Message);
+                        _logger.Verbose("Matrix output error: {1}", exception.ToString());
+                        _admin.Send("Matrix output {0} error", exception);
+                    }
                     _queue.Insert(message);
                     _client = null;
                     _backoff.Failure();
