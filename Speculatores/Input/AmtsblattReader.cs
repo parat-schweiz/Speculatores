@@ -22,16 +22,16 @@ namespace Speculatores
 
         public string Text { get; private set; }
 
-        public string Url { get; private set; }
+        public IEnumerable<string> Urls { get; private set; }
 
-        public AmtsblattEntry(Guid id, DateTime date, string office, string title, string text, string url)
+        public AmtsblattEntry(Guid id, DateTime date, string office, string title, string text, IEnumerable<string> urls)
         {
             Id = id;
             Date = date;
             Office = office;
             Title = title;
             Text = text;
-            Url = url;
+            Urls = urls;
         }
     }
 
@@ -127,17 +127,19 @@ namespace Speculatores
                             text = string.Join(" ", (new string[] { text, addon }).Where(x => !string.IsNullOrEmpty(x)));
                             text = CleanUp(text);
 
-                            var fileUrl = string.Empty;
-                            var fileId = item.Root
-                                .Elements("attachments").SingleOrDefault()
-                                ?.Elements("fileId").SingleOrDefault()
-                                ?.Value;
-                            if (!string.IsNullOrEmpty(fileId))
+                            var fileUrls = new List<string>();
+                            foreach (var fileId in item.Root
+                                .Elements("attachments")?.SelectMany(e =>
+                                e?.Elements("fileId").Select(x => x?.Value))
+                                .Where(i => !string.IsNullOrEmpty(i)))
                             {
-                                fileUrl = string.Format("https://amtsblatt.zg.ch/api/v1/publications/{0}/attachments/{1}", idString, fileId);
+                                if (!string.IsNullOrEmpty(fileId))
+                                {
+                                    fileUrls.Add(string.Format("https://amtsblatt.zg.ch/api/v1/publications/{0}/attachments/{1}", idString, fileId));
+                                }
                             }
                             pubsReturned++;
-                            yield return new AmtsblattEntry(id, date, office, title, text, fileUrl);
+                            yield return new AmtsblattEntry(id, date, office, title, text, fileUrls);
                         }
                         else
                         {

@@ -96,7 +96,9 @@ namespace Speculatores
                             .Replace("{office}", entry.Office)
                             .Replace("{title}", entry.Title)
                             .Replace("{text}", entry.Text)
-                            .Replace("{url}", entry.Url)
+                            .Replace("{url}", entry.Urls.FirstOrDefault() ?? string.Empty)
+                            .Replace("{urls}", string.Join(" ", entry.Urls))
+                            .Replace("{urlsn}", string.Join("\n", entry.Urls))
                             .Replace("{nn}", "\n\n")
                             .Replace("{n}", "\n");
                         _logger.Info("New message in amtsblatt {0}: {1}", Name, text.Substring(0, Math.Min(30, text.Length)).Replace("\n", " "));
