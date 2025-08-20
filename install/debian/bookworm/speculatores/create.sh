@@ -11,9 +11,9 @@ mkdir -p "$CTRLDIR"
 
 cp -a control "$CTRLDIR/"
 
-find ../../.. -name Release | xargs -I '{}' find {} -name *.dll | xargs -I '{}' cp -a {} "$PROGDIR/"
-find ../../.. -name Release | xargs -I '{}' find {} -name *.exe | xargs -I '{}' cp -a {} "$PROGDIR/"
-find ../../.. -name Release | xargs -I '{}' find {} -name *.so | xargs -I '{}' cp -a {} "$PROGDIR/"
+find ../../../.. -name Release | xargs -I '{}' find {} -name *.dll | xargs -I '{}' cp -a {} "$PROGDIR/"
+find ../../../.. -name Release | xargs -I '{}' find {} -name *.exe | xargs -I '{}' cp -a {} "$PROGDIR/"
+find ../../../.. -name Release | xargs -I '{}' find {} -name *.so | xargs -I '{}' cp -a {} "$PROGDIR/"
 
 DATETIME="$(find "$PACKDIR" -type f -printf '%TY%Tm%Td%TH%TM\n' | sort | tail -n 1)"
 
